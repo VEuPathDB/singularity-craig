@@ -15,6 +15,9 @@ virtual machine provisions Singularity suitable for building.
 $ sudo singularity build craig.simg Singularity 
 ```
 
+##
+
+$ singularity pull --name craig.simg shub://mheiges/singularity-craig
 
 ## Exec
 
