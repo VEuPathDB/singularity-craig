@@ -7,7 +7,8 @@ From: centos:7
 %environment
   export PREFIX_INSTALLATION=/opt/craig
   export CRAIG_HOME=$PREFIX_INSTALLATION
-  export PATH=$CRAIG_HOME/bin:$CRAIG_HOME/perl/bin:$CRAIG_HOME/python/bin:$PATH
+  export REGTOOLS_HOME=/opt/regtools
+  export PATH=$CRAIG_HOME/bin:$CRAIG_HOME/perl/bin:$CRAIG_HOME/python/bin:$REGTOOLS_HOME/build:$PATH
   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAIG_HOME/lib
 
 %labels
@@ -15,18 +16,33 @@ From: centos:7
 
 %post
   source /.singularity.d/env/90-environment.sh
-  WORKDIR=/tmp
 
+  WORKDIR=/scratch
+  mkdir $WORKDIR
+  
   yum install -y --disableplugin=fastestmirror epel-release && \
-    yum clean all && \
-    yum update -y --disableplugin=fastestmirror && \
-    yum install -y --disableplugin=fastestmirror \
-      python git make gcc gcc-c++ autoconf automake libtool \
-      doxygen boost-regex python2-pip && \
-    yum clean all && rm -rf /var/cache/yum
+  yum clean all
+  yum update -y --disableplugin=fastestmirror
 
-  rm -rf $WORKDIR/CraiG
-  rm -rf $WORKDIR/sparsehash
+  # build tools that will be uninstalled after compile to reduce image
+  # size
+  yum install -y --disableplugin=fastestmirror \
+    autoconf \
+    automake \
+    boost-regex \
+    cmake \
+    gcc \
+    gcc-c++ \
+    git \
+    libtool \
+    make \
+    python2-pip \
+    zlib-devel
+  yum_txn_id=$(yum history list  |  sed -n '/^---/{n;p}' | awk '{print $1}')
+
+  # packages that persist in final image
+  yum install -y --disableplugin=fastestmirror \
+    python
 
   cd $WORKDIR
   git clone https://github.com/sparsehash/sparsehash.git
@@ -34,6 +50,15 @@ From: centos:7
   cd sparsehash && \
     ./configure && \
     make install
+
+  # regtools
+  # https://regtools.readthedocs.io/en/latest/
+  git clone https://github.com/griffithlab/regtools $REGTOOLS_HOME
+  cd $REGTOOLS_HOME
+  mkdir build
+  cd build/
+  cmake ..
+  make
 
   cd $WORKDIR
   git clone https://github.com/axl-bernal/CraiG.git
@@ -45,5 +70,7 @@ From: centos:7
 
   pip install numpy
 
-  rm -rf $WORKDIR/CraiG
-  rm -rf $WORKDIR/sparsehash
+  # uninstall build tools
+  yum history undo -y $yum_txn_id
+  yum clean all && rm -rf /var/cache/yum
+  rm -rf $WORKDIR
