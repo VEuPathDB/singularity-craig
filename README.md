@@ -11,7 +11,10 @@ https://github.com/axl-bernal/CraiG
 The [`vagrant-rpmbuild`](https://github.com/EuPathDB/vagrant-rpmbuild)
 virtual machine provisions Singularity suitable for building.
 
+Typically you should remove any existing image so you get clean build.
+
 ```
+$ rm -f craig.simg
 $ sudo singularity build craig.simg Singularity 
 ```
 
