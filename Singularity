@@ -76,19 +76,22 @@ From: centos:7
   cmake ..
   make
 
+  # uncomment '#1' when working with dev CraiG fork
   cd $WORKDIR
   if [[ -e CraiG ]]; then
     pushd CraiG
     git reset -- .
     git clean -f -x -d -- .
-    git checkout ebrc
+    #1 git fetch
+    #1 git checkout ebrc_working
     git pull
     popd
   else
-    git clone https://github.com/mheiges/CraiG.git
-    pushd CraiG
-    git checkout ebrc_working
-    popd
+    git clone https://github.com/axl-bernal/CraiG
+    #1 git clone https://github.com/mheiges/CraiG.git
+    #1 pushd CraiG
+    #1 git checkout ebrc_working
+    #1 popd
   fi
 
   cd CraiG  && \
