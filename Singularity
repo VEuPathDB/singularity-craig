@@ -87,7 +87,7 @@ From: centos:7
   else
     git clone https://github.com/mheiges/CraiG.git
     pushd CraiG
-    git checkout ebrc
+    git checkout ebrc_working
     popd
   fi
 
