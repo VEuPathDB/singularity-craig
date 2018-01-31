@@ -114,4 +114,7 @@ From: centos:7
     perl
 
   yum clean all && rm -rf /var/cache/yum
-  rm -rf $WORKDIR
+  
+  if [[ "$WORKDIR" != "/tmp" ]]; then
+    rm -rf $WORKDIR
+  fi
