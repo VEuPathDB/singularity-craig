@@ -85,6 +85,7 @@ From: centos:7
     popd
   else
     git clone https://github.com/mheiges/CraiG.git
+    git checkout ebrc
   fi
 
   cd CraiG  && \
