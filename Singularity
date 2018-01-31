@@ -81,11 +81,14 @@ From: centos:7
     pushd CraiG
     git reset -- .
     git clean -f -x -d -- .
+    git checkout ebrc
     git pull
     popd
   else
     git clone https://github.com/mheiges/CraiG.git
+    pushd CraiG
     git checkout ebrc
+    popd
   fi
 
   cd CraiG  && \
