@@ -5,12 +5,13 @@ From: centos:7
     exec echo "The runscript is the containers default runtime command!"
 
 %environment
+  SAMTOOLS_VER=1.7
   export PREFIX_INSTALLATION=/opt/craig
-  export CRAIG_HOME=$PREFIX_INSTALLATION
+  export CRAIG_HOME="${PREFIX_INSTALLATION}"
   export SAMTOOLS_HOME=/opt/samtools
   export REGTOOLS_HOME=/opt/regtools
-  export PATH=$CRAIG_HOME/bin:$CRAIG_HOME/perl/bin:$CRAIG_HOME/python/bin:$REGTOOLS_HOME/build:$SAMTOOLS_HOME/bin:$PATH
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAIG_HOME/lib
+  export PATH="${CRAIG_HOME}/bin:${CRAIG_HOME}/perl/bin:${CRAIG_HOME}/python/bin:${REGTOOLS_HOME}/build:${SAMTOOLS_HOME}/bin:${PATH}"
+  export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${CRAIG_HOME}/lib"
 
 %labels
    AUTHOR mheiges@uga.edu
@@ -44,7 +45,7 @@ From: centos:7
     zlib-devel
   yum_txn_id=$(yum history list  |  sed -n '/^---/{n;p}' | awk '{print $1}')
 
-  cd $WORKDIR
+  cd "${WORKDIR}"
   if [[ -e sparsehash ]]; then
     pushd sparsehash
     git reset -- .
@@ -61,23 +62,23 @@ From: centos:7
 
   # regtools
   # https://regtools.readthedocs.io/en/latest/
-  if [[ -e $REGTOOLS_HOME ]]; then
-    pushd $REGTOOLS_HOME
+  if [[ -e "${REGTOOLS_HOME}" ]]; then
+    pushd "${REGTOOLS_HOME}"
     git reset -- .
     git clean -f -x -d -- .
     git pull
     popd
   else
-    git clone https://github.com/griffithlab/regtools $REGTOOLS_HOME
+    git clone https://github.com/griffithlab/regtools "${REGTOOLS_HOME}"
   fi
-  cd $REGTOOLS_HOME
+  cd "${REGTOOLS_HOME}"
   mkdir build
   cd build/
   cmake ..
   make
 
   # uncomment '#1' when working with dev CraiG fork
-  cd $WORKDIR
+  cd "${WORKDIR}"
   if [[ -e CraiG ]]; then
     pushd CraiG
     git reset -- .
@@ -96,14 +97,15 @@ From: centos:7
 
   cd CraiG  && \
     ./autogen.sh  && \
-    ./configure --prefix="$PREFIX_INSTALLATION" CXXFLAGS="$CXXFLAGS -std=c++11" --enable-opt=no --enable-mpi=no && \
-    make && make install && make installcheck
+    ./configure --prefix="${PREFIX_INSTALLATION}" CXXFLAGS="$CXXFLAGS -std=c++11" --enable-opt=no --enable-mpi=no && \
+    make && make install && make installcheck && \
+    if [[ -f python/requirements.txt ]]; then pip install -r python/requirements.txt; fi
 
-  cd $WORKDIR
-  curl -LO https://gigenet.dl.sourceforge.net/project/samtools/samtools/1.7/samtools-1.7.tar.bz2
-  rm -rf samtools-1.7
-  tar xf samtools-1.7.tar.bz2
-  pushd samtools-1.7
+  cd "${WORKDIR}"
+  curl -LO "https://gigenet.dl.sourceforge.net/project/samtools/samtools/${SAMTOOLS_VER}/samtools-${SAMTOOLS_VER}.tar.bz2"
+  rm -rf "samtools-${SAMTOOLS_VER}"
+  tar xf "samtools-${SAMTOOLS_VER}.tar.bz2"
+  pushd "samtools-${SAMTOOLS_VER}"
   ./configure --prefix=/opt/samtools
   make
   make install
@@ -112,7 +114,7 @@ From: centos:7
   pip install numpy
 
   # uninstall build tools
-  #yum history undo -y $yum_txn_id
+  #yum history undo -y ${yum_txn_id}
 
   # packages that persist in final image
   yum install -y --disableplugin=fastestmirror \
@@ -121,6 +123,6 @@ From: centos:7
 
   yum clean all && rm -rf /var/cache/yum
   
-  if [[ "$WORKDIR" != "/tmp" ]]; then
-    rm -rf $WORKDIR
+  if [[ "${WORKDIR}" != "/tmp" ]]; then
+    rm -rf "${WORKDIR}"
   fi
