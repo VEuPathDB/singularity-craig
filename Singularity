@@ -99,6 +99,8 @@ From: centos:7
     ./autogen.sh  && \
     ./configure --prefix="${PREFIX_INSTALLATION}" CXXFLAGS="$CXXFLAGS -std=c++11" --enable-opt=yes --enable-mpi=no && \
     make && make install && make installcheck && \
+      # chmod models is temporary until better design is available
+    chmod 1777 "${PREFIX_INSTALLATION}/models" && \
     if [[ -f python/requirements.txt ]]; then pip install -r python/requirements.txt; fi
 
   cd "${WORKDIR}"
