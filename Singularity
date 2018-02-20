@@ -104,7 +104,7 @@ From: centos:7
     if [[ -f python/requirements.txt ]]; then pip install -r python/requirements.txt; fi
 
   cd "${WORKDIR}"
-  curl -LO "https://gigenet.dl.sourceforge.net/project/samtools/samtools/${SAMTOOLS_VER}/samtools-${SAMTOOLS_VER}.tar.bz2"
+  curl -L "https://sourceforge.net/projects/samtools/files/samtools/${SAMTOOLS_VER}/samtools-${SAMTOOLS_VER}.tar.bz2/download" -o samtools-${SAMTOOLS_VER}.tar.bz2
   rm -rf "samtools-${SAMTOOLS_VER}"
   tar xf "samtools-${SAMTOOLS_VER}.tar.bz2"
   pushd "samtools-${SAMTOOLS_VER}"
